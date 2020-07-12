@@ -36,8 +36,6 @@ int main(int argc, char *argv[])
     return -1;
   }
 
-  writer = new WriterTxtData(argv[2]);
-
   string source;
   float hz;
   string transform = "";
@@ -45,7 +43,12 @@ int main(int argc, char *argv[])
   float tp = 1000 * (1 / hz);
   unique_ptr<DataSource> ds = DataSourceGenerator::GetDataSource(source);
 
-  vector<float> x, y_re(batch_num), y_im(batch_num);
+  if (transform == "")
+    writer = new WriterTxtData(argv[2], false);
+  else
+    writer = new WriterTxtData(argv[2], true);
+
+  vector<float> x;
 
   auto starts = std::chrono::system_clock::now();
 
@@ -61,7 +64,11 @@ int main(int argc, char *argv[])
       if (x.size() == batch_num)
       {
         if (transform == "fft")
-          Transformer::fft(x, y_re, y_im);
+        {
+          vector<float> y;
+          Transformer::fft(x, y);
+          writer->WriteData(y);
+        }
         else
         {
           writer->WriteData(x);
