@@ -9,6 +9,7 @@
 #include "reader.hpp"
 #include "tinyxml2.h"
 #include <stdexcept>
+#include "data_source.hpp"
 
 using std::ifstream;
 using std::invalid_argument;
@@ -30,14 +31,14 @@ int main(int argc, char *argv[])
   float hz;
   reader->GetParameters(source, hz);
   auto starts = std::chrono::system_clock::now();
+  DataSource* ds =  new CpuFreqData();
+
   while (true)
   {
     if (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - starts).count() >= hz)
     {
       starts = std::chrono::system_clock::now();
-      ifstream ifs("/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq");
-      string freq;
-      ifs >> freq;
+      float freq = ds->GetValue();
       std::cout << freq << std::endl;
     }
   }
