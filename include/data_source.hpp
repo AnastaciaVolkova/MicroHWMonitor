@@ -7,7 +7,7 @@
 class DataSource
 {
 public:
-    DataSource();
+    DataSource(std::string data_file);
     virtual float GetValue() = 0;
 
 protected:
@@ -25,7 +25,7 @@ public:
     float GetValue() override;
 };
 
-//! \brief Fam Rpm
+//! \brief Fan Rpm
 class FanRpmData : public DataSource
 {
 public:
@@ -33,6 +33,17 @@ public:
 
     //! Get value of fan rpm
     // \return rpm
+    float GetValue() override;
+};
+
+//! \brief Cpu Temp
+class CpuTempData : public DataSource
+{
+public:
+    CpuTempData();
+
+    //! Get value of cpu temperature
+    // \return cpu temperature
     float GetValue() override;
 };
 
