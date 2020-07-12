@@ -6,18 +6,29 @@
 #include <thread>
 #include <fstream>
 
+#include "reader.hpp"
 #include "tinyxml2.h"
+#include <stdexcept>
 
-using std::string;
 using std::ifstream;
+using std::invalid_argument;
+using std::string;
 
 int main(int argc, char *argv[])
 {
-  tinyxml2::XMLDocument doc;
-  doc.LoadFile(argv[1]);
-  tinyxml2::XMLElement *element = doc.RootElement();
-  string source = doc.RootElement()->FirstChildElement("source")->GetText();
-  float hz = std::stof(doc.RootElement()->FirstChildElement("hz")->GetText());
+  Reader *reader;
+  try
+  {
+    reader = new ReaderXML(argv[1]);
+  }
+  catch (invalid_argument exception)
+  {
+    std::cerr << exception.what() << std::endl;
+    return -1;
+  }
+  string source;
+  float hz;
+  reader->GetParameters(source, hz);
   auto starts = std::chrono::system_clock::now();
   while (true)
   {
