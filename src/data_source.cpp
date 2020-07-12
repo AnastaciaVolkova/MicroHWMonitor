@@ -20,6 +20,16 @@ float CpuFreqData::GetValue()
   return stof(freq);
 };
 
+FanRpmData::FanRpmData() : DataSource(){};
+
+float FanRpmData::GetValue()
+{
+  ifstream ifs("/sys/class/hwmon/hwmon6/fan1_input");
+  string rpm;
+  ifs >> rpm;
+  return stof(rpm);
+}
+
 unique_ptr<DataSource> DataSourceGenerator::GetDataSource(string source_name)
 {
   while (source_name[0] == ' ')
@@ -29,7 +39,7 @@ unique_ptr<DataSource> DataSourceGenerator::GetDataSource(string source_name)
   if (source_name == "cpu")
     return make_unique<CpuFreqData>();
   else if (source_name == "fan")
-    return nullptr;
+    return make_unique<FanRpmData>();
   else
     return nullptr;
 };

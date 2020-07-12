@@ -14,6 +14,7 @@ protected:
     const std::string data_file_;
 };
 
+//! \brief Cpu frequency
 class CpuFreqData : public DataSource
 {
 public:
@@ -21,6 +22,17 @@ public:
 
     //! Get value of cpu frequency
     // \return cpu frequency
+    float GetValue() override;
+};
+
+//! \brief Fam Rpm
+class FanRpmData : public DataSource
+{
+public:
+    FanRpmData();
+
+    //! Get value of fan rpm
+    // \return rpm
     float GetValue() override;
 };
 
