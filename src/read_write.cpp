@@ -72,6 +72,6 @@ WriterTxtData::WriterTxtData(string file_name)
 void WriterTxtData::WriteData(const vector<float> d)
 {
   for (auto i : d)
-    ofs_ << i << " ";
+    ofs_ << std::fixed << i << " ";
   ofs_ << std::endl;
 }
