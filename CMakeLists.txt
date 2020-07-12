@@ -10,9 +10,9 @@ project(micro_hardware_monitor)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
 # find_package(SDL2 REQUIRED)
-# include_directories(${SDL2_INCLUDE_DIRS} src)
+include_directories(src include)
 
-add_executable(${PROJECT_NAME} main.cpp tinyxml2.cpp)
+add_executable(${PROJECT_NAME} ./src/main.cpp ./src/tinyxml2.cpp)
 
 target_link_libraries(${PROJECT_NAME})
 
