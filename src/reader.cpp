@@ -1,10 +1,12 @@
 #include "reader.hpp"
 #include <iostream>
 #include <stdexcept>
+#include <vector>
 
 using std::invalid_argument;
 using std::string;
 using std::tuple;
+using std::vector;
 
 ReaderXML::ReaderXML(const char *in_file)
 {
@@ -60,4 +62,16 @@ void ReaderXML::GetParameters(string &source, float &hz, string &transform)
   hz = std::stof(doc_.RootElement()->FirstChildElement("hz")->GetText());
   if (doc_.RootElement()->FirstChildElement("transform") != nullptr)
     transform = doc_.RootElement()->FirstChildElement("transform")->GetText();
+}
+
+WriterTxtData::WriterTxtData(string file_name)
+{
+  ofs_.open(file_name);
+}
+
+void WriterTxtData::WriteData(const vector<float> d)
+{
+  for (auto i : d)
+    ofs_ << i << " ";
+  ofs_ << std::endl;
 }
