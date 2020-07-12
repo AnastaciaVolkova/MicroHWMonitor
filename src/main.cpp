@@ -9,12 +9,13 @@
 #include "data_source.hpp"
 #include <vector>
 #include "transform.hpp"
-#include <ncurses.h>
+#include <memory>
 
 using std::ifstream;
 using std::invalid_argument;
 using std::string;
 using std::to_string;
+using std::unique_ptr;
 using std::vector;
 
 int main(int argc, char *argv[])
@@ -35,7 +36,7 @@ int main(int argc, char *argv[])
   reader->GetParameters(source, hz, transform);
   float tp = 1000 * (1 / hz);
   auto starts = std::chrono::system_clock::now();
-  DataSource *ds = new CpuFreqData();
+  unique_ptr<DataSource> ds = DataSourceGenerator::GetDataSource(source);
 
   vector<float> x, y_re(64), y_im(64);
 
