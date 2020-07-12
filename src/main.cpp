@@ -3,7 +3,7 @@
 #include <chrono>
 #include <fstream>
 
-#include "reader.hpp"
+#include "read_write.hpp"
 #include "tinyxml2.h"
 #include <stdexcept>
 #include "data_source.hpp"
@@ -11,8 +11,8 @@
 #include "transform.hpp"
 #include <memory>
 
-using std::ifstream;
 using std::invalid_argument;
+using std::ofstream;
 using std::string;
 using std::to_string;
 using std::unique_ptr;
@@ -40,6 +40,7 @@ int main(int argc, char *argv[])
   vector<float> x, y_re(64), y_im(64);
 
   auto starts = std::chrono::system_clock::now();
+
   while (true)
   {
     if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - starts).count() >= tp)
