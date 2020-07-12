@@ -35,17 +35,11 @@ int main(int argc, char *argv[])
   string transform = "";
   reader->GetParameters(source, hz, transform);
   float tp = 1000 * (1 / hz);
-  auto starts = std::chrono::system_clock::now();
   unique_ptr<DataSource> ds = DataSourceGenerator::GetDataSource(source);
 
   vector<float> x, y_re(64), y_im(64);
 
-  auto show = [](const auto &v) {
-    for (auto i : v)
-      std::cout << i << " ";
-    std::cout << std::endl;
-  };
-
+  auto starts = std::chrono::system_clock::now();
   while (true)
   {
     if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - starts).count() >= tp)
