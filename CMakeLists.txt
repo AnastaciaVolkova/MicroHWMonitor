@@ -9,10 +9,9 @@ project(micro_hardware_monitor)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
-# find_package(SDL2 REQUIRED)
 include_directories(src include)
 
-add_executable(${PROJECT_NAME} ./src/main.cpp ./src/tinyxml2.cpp ./src/reader.cpp ./src/data_source.cpp)
+add_executable(${PROJECT_NAME} ./src/main.cpp ./src/tinyxml2.cpp ./src/reader.cpp ./src/data_source.cpp ./src/transform.cpp)
 
-target_link_libraries(${PROJECT_NAME})
+target_link_libraries(${PROJECT_NAME} fftw3)
 
