@@ -50,6 +50,8 @@ unique_ptr<DataSource> DataSourceGenerator::GetDataSource(string source_name)
     return make_unique<CpuFreqData>();
   else if (source_name == "fan")
     return make_unique<FanRpmData>();
+  else if (source_name == "cpu_temp")
+    return make_unique<CpuTempData>();
   else
     return nullptr;
 };
