@@ -64,9 +64,13 @@ void ReaderXML::GetParameters(string &source, float &hz, string &transform)
     transform = doc_.RootElement()->FirstChildElement("transform")->GetText();
 }
 
-WriterTxtData::WriterTxtData(string file_name)
+WriterTxtData::WriterTxtData(string file_name, bool is_complex)
 {
   ofs_.open(file_name);
+  if (is_complex)
+    ofs_ << "1" << std::endl;
+  else
+    ofs_ << "0" << std::endl;
 }
 
 void WriterTxtData::WriteData(const vector<float> d)
