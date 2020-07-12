@@ -17,6 +17,9 @@ class CpuFreqData : public DataSource
 {
 public:
     CpuFreqData();
+
+    //! Get value of cpu frequency
+    // \return cpu frequency
     float GetValue() override;
 };
 
