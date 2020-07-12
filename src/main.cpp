@@ -9,10 +9,12 @@
 #include "data_source.hpp"
 #include <vector>
 #include "transform.hpp"
+#include <ncurses.h>
 
 using std::ifstream;
 using std::invalid_argument;
 using std::string;
+using std::to_string;
 using std::vector;
 
 int main(int argc, char *argv[])
@@ -57,6 +59,15 @@ int main(int argc, char *argv[])
           Transformer::fft(x, y_re, y_im);
           x.clear();
         }
+      }
+      if ((x.size() % 10) == 0)
+      {
+        string xstr = to_string(x.size());
+        string info = "Number of read samples: ";
+        std::cout << info << x.size();
+        for (int i = 0; i < info.size() + xstr.size(); i++)
+          std::cout << "\r";
+        std::cout.flush();
       }
     }
   }
