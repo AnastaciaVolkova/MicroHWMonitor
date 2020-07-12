@@ -21,6 +21,11 @@ using std::vector;
 int main(int argc, char *argv[])
 {
   Reader *reader;
+  Writer *writer;
+
+  // Size of data chunk which is written to file
+  constexpr int batch_num = 64;
+
   try
   {
     reader = new ReaderXML(argv[1]);
@@ -30,6 +35,9 @@ int main(int argc, char *argv[])
     std::cerr << exception.what() << std::endl;
     return -1;
   }
+
+  writer = new WriterTxtData(argv[2]);
+
   string source;
   float hz;
   string transform = "";
@@ -37,30 +45,34 @@ int main(int argc, char *argv[])
   float tp = 1000 * (1 / hz);
   unique_ptr<DataSource> ds = DataSourceGenerator::GetDataSource(source);
 
-  vector<float> x, y_re(64), y_im(64);
+  vector<float> x, y_re(batch_num), y_im(batch_num);
 
   auto starts = std::chrono::system_clock::now();
 
+  int sample_number = 0;
   while (true)
   {
     if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - starts).count() >= tp)
     {
       starts = std::chrono::system_clock::now();
+      sample_number++;
       float freq = ds->GetValue();
       x.push_back(freq);
-      if (transform == "fft")
+      if (x.size() == batch_num)
       {
-        if (x.size() == 64)
-        {
+        if (transform == "fft")
           Transformer::fft(x, y_re, y_im);
-          x.clear();
+        else
+        {
+          writer->WriteData(x);
         }
+        x.clear();
       }
-      if ((x.size() % 10) == 0)
+      if ((sample_number % 10) == 0)
       {
-        string xstr = to_string(x.size());
+        string xstr = to_string(sample_number);
         string info = "Number of read samples: ";
-        std::cout << info << x.size();
+        std::cout << info << sample_number;
         for (int i = 0; i < info.size() + xstr.size(); i++)
           std::cout << "\r";
         std::cout.flush();
