@@ -10,7 +10,8 @@ public:
   //! Get source and frequency from input parameters
   // \param [out] source source (cpu, fan etc)
   // \param [out] hz frequency (Hz)
-  virtual void GetParameters(std::string &source, float &hz) = 0;
+  // \param [out] transform transform to apply
+  virtual void GetParameters(std::string &source, float &hz, std::string &transform) = 0;
 };
 
 class ReaderXML : public Reader
@@ -20,7 +21,7 @@ private:
 
 public:
   ReaderXML(const char *in_file);
-  void GetParameters(std::string &source, float &hz) override;
+  void GetParameters(std::string &source, float &hz, std::string &transform) override;
 };
 
 #endif

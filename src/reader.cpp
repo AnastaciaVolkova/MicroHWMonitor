@@ -54,8 +54,10 @@ ReaderXML::ReaderXML(const char *in_file)
   }
 }
 
-void ReaderXML::GetParameters(string &source, float &hz)
+void ReaderXML::GetParameters(string &source, float &hz, string &transform)
 {
   source = doc_.RootElement()->FirstChildElement("source")->GetText();
   hz = std::stof(doc_.RootElement()->FirstChildElement("hz")->GetText());
+  if (doc_.RootElement()->FirstChildElement("transform") != nullptr)
+    transform = doc_.RootElement()->FirstChildElement("transform")->GetText();
 }
