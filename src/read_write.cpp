@@ -75,8 +75,6 @@ WriterTxtData::WriterTxtData(string file_name, bool is_complex, float hz) : file
   Writer::batch_number_ = 0;
   Writer::is_complex_ = is_complex;
   ofs_.open(file_name_);
-  ofs_ << static_cast<int>(is_complex) << std::endl;
-  ofs_ << hz << std::endl;
 }
 
 void WriterTxtData::WriteData(const vector<float> d)
