@@ -14,9 +14,9 @@ using std::to_string;
 using std::tuple;
 using std::vector;
 
-ReaderXML::ReaderXML(const char *in_file)
+ReaderXML::ReaderXML(const string &in_file)
 {
-  tinyxml2::XMLError error = doc_.LoadFile(in_file);
+  tinyxml2::XMLError error = doc_.LoadFile(in_file.c_str());
   switch (error)
   {
   case tinyxml2::XML_SUCCESS:
@@ -70,7 +70,7 @@ void ReaderXML::GetParameters(string &source, float &hz, string &transform)
     transform = doc_.RootElement()->FirstChildElement("transform")->GetText();
 }
 
-WriterTxtData::WriterTxtData(string file_name, bool is_complex, float hz) : file_name_(file_name)
+WriterTxtData::WriterTxtData(const string &file_name, bool is_complex, float hz) : file_name_(file_name)
 {
   Writer::batch_number_ = 0;
   Writer::is_complex_ = is_complex;

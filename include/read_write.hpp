@@ -23,7 +23,7 @@ private:
   tinyxml2::XMLDocument doc_;
 
 public:
-  ReaderXML(const char *in_file);
+  ReaderXML(const std::string &in_file);
   void GetParameters(std::string &source, float &hz, std::string &transform) override;
 };
 
@@ -54,7 +54,7 @@ private:
 public:
   // \param [in] file_name name of file, where data are going to be stored
   // \param [in] is_complex flag, which signals that data to write is complex
-  WriterTxtData(std::string file_name, bool is_complex, float hz);
+  WriterTxtData(const std::string &file_name, bool is_complex, float hz);
 
   void WriteData(const std::vector<float> d) override;
 };
