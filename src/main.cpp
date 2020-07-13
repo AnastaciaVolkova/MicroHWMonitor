@@ -11,7 +11,6 @@
 #include "transform.hpp"
 #include <memory>
 #include <future>
-#include "matplotlibcpp.h"
 
 using std::invalid_argument;
 using std::ofstream;
@@ -21,7 +20,6 @@ using std::unique_ptr;
 using std::vector;
 using std::chrono::milliseconds;
 using std::chrono::system_clock;
-namespace plt = matplotlibcpp;
 
 // Function to show number of processed samples
 void ShowSamples(int sample_number, bool to_r)
