@@ -11,6 +11,7 @@
 #include "transform.hpp"
 #include <memory>
 #include <future>
+#include "matplotlibcpp.h"
 
 using std::invalid_argument;
 using std::ofstream;
@@ -20,6 +21,7 @@ using std::unique_ptr;
 using std::vector;
 using std::chrono::milliseconds;
 using std::chrono::system_clock;
+namespace plt = matplotlibcpp;
 
 // Function to show number of processed samples
 void ShowSamples(int sample_number, bool to_r)
@@ -102,18 +104,18 @@ int main(int argc, char *argv[])
     if ((sample_number % 10) == 0)
     {
       ShowSamples(sample_number, true);
-      // Wait rest of time for user keystroke
-      system_clock::time_point tw = starts + milliseconds(static_cast<int>(round(tp)));
-      std::future_status status = key.wait_until(tw);
-      if (status == std::future_status::ready)
-      {
-        ShowSamples(sample_number, false);
-        break;
-      }
-      while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - starts).count() <= tp)
-        ;
-      starts = std::chrono::system_clock::now();
     }
+    // Wait rest of time for user keystroke
+    system_clock::time_point tw = starts + milliseconds(static_cast<int>(round(tp)));
+    std::future_status status = key.wait_until(tw);
+    if (status == std::future_status::ready)
+    {
+      ShowSamples(sample_number, false);
+      break;
+    }
+    while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - starts).count() <= tp)
+      ;
+    starts = std::chrono::system_clock::now();
   }
   return 0;
 }
