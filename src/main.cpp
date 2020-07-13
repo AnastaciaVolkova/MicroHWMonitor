@@ -67,10 +67,7 @@ int main(int argc, char *argv[])
   float tp = 1000 * (1 / hz);
   unique_ptr<DataSource> ds = DataSourceGenerator::GetDataSource(source);
 
-  if (transform == "")
-    writer = new WriterTxtData(argv[2], false);
-  else
-    writer = new WriterTxtData(argv[2], true);
+  writer = new WriterTxtData(argv[2], transform != "", hz);
 
   vector<float> x;
 

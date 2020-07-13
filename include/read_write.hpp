@@ -44,7 +44,8 @@ private:
 public:
   // \param [in] file_name name of file, where data are going to be stored
   // \param [in] is_complex flag, which signals that data to write is complex
-  WriterTxtData(std::string file_name, bool is_complex);
+  // \param [in] hz frequency of data source polling
+  WriterTxtData(std::string file_name, bool is_complex, float hz);
   void WriteData(const std::vector<float> d) override;
 };
 #endif
