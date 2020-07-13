@@ -42,6 +42,57 @@ void ShowSamples(int sample_number, bool to_r)
     std::cout << std::endl;
 };
 
+bool ParseCommandLine(int argc, char *argv[], bool &to_replay, string &in_file, string &out_file)
+{
+  int i = 1;
+  to_replay = false;
+  in_file = "";
+  out_file = "";
+  string command_line = argv[0] + string(" -if <parameter_file> -of <output_data_file> [-r]");
+  while (i < argc)
+  {
+    string arg_it = argv[i++];
+    if (arg_it == "-r")
+    {
+      to_replay = true;
+    }
+    else if (i < argc)
+    {
+      if (arg_it == "-if")
+      {
+        in_file = argv[i++];
+      }
+      else if (arg_it == "-of")
+      {
+        out_file = argv[i++];
+      }
+      else if (arg_it == "-h")
+      {
+        std::cout << command_line << std::endl;
+        return false;
+      }
+      else
+      {
+        std::cerr << "Wrong command line" << std::endl;
+        std::cerr << command_line << std::endl;
+        return false;
+      }
+    }
+    else
+    {
+      std::cerr << "Wrong command line" << std::endl;
+      std::cerr << command_line << std::endl;
+    }
+  }
+  if ((out_file == "") || (in_file == ""))
+  {
+    std::cerr << "Wrong command line" << std::endl;
+    std::cerr << command_line << std::endl;
+    return false;
+  }
+  return true;
+}
+
 int main(int argc, char *argv[])
 {
   Reader *reader;
@@ -50,9 +101,14 @@ int main(int argc, char *argv[])
   // Size of data chunk which is written to file
   constexpr int batch_num = 64;
 
+  string in_file, out_file;
+  bool to_replay;
+  if (!ParseCommandLine(argc, argv, to_replay, in_file, out_file))
+    return -1;
+
   try
   {
-    reader = new ReaderXML(argv[1]);
+    reader = new ReaderXML(in_file);
   }
   catch (invalid_argument exception)
   {
@@ -67,7 +123,7 @@ int main(int argc, char *argv[])
   float tp = 1000 * (1 / hz);
   unique_ptr<DataSource> ds = DataSourceGenerator::GetDataSource(source);
 
-  writer = new WriterTxtData(argv[2], transform != "", hz);
+  writer = new WriterTxtData(out_file, transform != "", hz);
 
   vector<float> x;
 
