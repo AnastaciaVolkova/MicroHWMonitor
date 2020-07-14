@@ -59,8 +59,10 @@ public:
   };
   void PollSensors()
   {
+#ifndef UT
     // Run thread to catch user input
     auto key = std::async(std::launch::async, []() {std::string key; std::cin >> key; return key; });
+#endif
 
     // Time, when iteration starts
     auto starts = std::chrono::system_clock::now();
@@ -79,12 +81,14 @@ public:
       }
       // Wait rest of time for user keystroke
       std::chrono::system_clock::time_point tw = starts + std::chrono::milliseconds(static_cast<int>(round(period_)));
+#ifndef UT
       std::future_status status = key.wait_until(tw);
       if (status == std::future_status::ready)
       {
         ShowSamples(data_proc_->NumSamples(), false);
         break;
       }
+#endif
       while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - starts).count() <= period_)
         ;
       starts = std::chrono::system_clock::now();
