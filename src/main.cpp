@@ -89,12 +89,23 @@ bool ParseCommandLine(int argc, char *argv[], string &in_d_file, string &in_file
 int main(int argc, char *argv[])
 {
   unique_ptr<Reader> reader;
+  unique_ptr<DataSource> ds;
+  unique_ptr<Writer> writer;
+  unique_ptr<Transformer> transformer;
 
   // Size of data chunk which is written to file
   constexpr int batch_num = 64;
 
+  // Parametes to get from command line
   string in_file, out_file, in_d_file;
-  bool to_replay;
+
+  // Parameters of data source pooling
+  string source;
+  float hz;
+  string transform = "";
+
+  float tp; // Time period to poll sensors
+
   if (!ParseCommandLine(argc, argv, in_d_file, in_file, out_file))
     return -1;
 
@@ -108,15 +119,25 @@ int main(int argc, char *argv[])
     return -1;
   }
 
-  string source;
-  float hz;
-  string transform = "";
   reader->GetParameters(source, hz, transform);
-  float tp = 1000 * (1 / hz);
-  unique_ptr<DataSource> ds = DataSourceGenerator::GetDataSource(in_d_file == "" ? source : in_d_file);
+  tp = 1000 * (1 / hz);
+  ds = DataSourceGenerator::GetDataSource(in_d_file == "" ? source : in_d_file);
 
-  unique_ptr<Writer> writer = make_unique<WriterTxtData>(out_file, transform != "", hz);
-  unique_ptr<Transformer> transformer = make_unique<FFTTransformer>();
+  if (in_d_file == "")
+  {
+    if (transform == "")
+      transformer = make_unique<ByPassTransformer>();
+    else
+      transformer = make_unique<FFTTransformer>();
+  }
+  else
+  {
+    if (transform == "")
+      transformer = make_unique<ByPassTransformer>();
+    else
+      transformer = make_unique<IFFTTransformer>();
+  }
+  writer = make_unique<WriterTxtData>(out_file);
 
   DataProcessor data_proc(batch_num, transformer.get(), writer.get());
 
