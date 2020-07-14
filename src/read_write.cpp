@@ -5,6 +5,7 @@
 #include "matplotlibcpp.h"
 #include <sstream>
 #include <iomanip>
+#include <algorithm>
 
 namespace plt = matplotlibcpp;
 using std::invalid_argument;
@@ -70,23 +71,25 @@ void ReaderXML::GetParameters(string &source, float &hz, string &transform)
     transform = doc_.RootElement()->FirstChildElement("transform")->GetText();
 }
 
-WriterTxtData::WriterTxtData(const string &file_name, bool is_complex, float hz) : file_name_(file_name)
+WriterTxtData::WriterTxtData(const string &file_name) : file_name_(file_name)
 {
   Writer::batch_number_ = 0;
-  Writer::is_complex_ = is_complex;
   ofs_.open(file_name_);
 }
 
-void WriterTxtData::WriteData(const vector<float> d)
+void WriterTxtData::WriteData(const vector<vector<float>> &d)
 {
-  for (auto i : d)
-    ofs_ << std::fixed << i << " ";
+  for (int i = 0; i < d[0].size(); i++)
+  {
+    for (int j = 0; j < d.size(); j++)
+      ofs_ << d[j][i] << " ";
+  }
   ofs_ << std::endl;
   CreateGraph(d, file_name_);
   batch_number_++;
 }
 
-void Writer::CreateGraph(const vector<float> &x, string out_file)
+void Writer::CreateGraph(const vector<vector<float>> &x, string out_file)
 {
   int dot_pos = out_file.find_last_of('.');
   if (dot_pos != string::npos)
@@ -95,23 +98,11 @@ void Writer::CreateGraph(const vector<float> &x, string out_file)
   ostringstream oss;
   oss << std::setw(4) << std::setfill('0') << to_string(batch_number_);
   string out_file_png = out_file + "_" + oss.str() + ".png";
-  if (is_complex_)
+  int series_num = x.size();
+  for (int sn = 0; sn < series_num; sn++)
   {
-    vector<float> x_re(x.size() / 2);
-    vector<float> x_im(x.size() / 2);
-    for (int i = 0; i < x.size() / 2; i++)
-    {
-      x_re[i] = x[2 * i];
-      x_im[i] = x[2 * i + 1];
-    }
-    plt::subplot(2, 1, 1);
-    plt::plot(x_re);
-    plt::subplot(2, 1, 2);
-    plt::plot(x_im);
-  }
-  else
-  {
-    plt::plot(x);
+    plt::subplot(series_num, 1, sn + 1);
+    plt::plot(x[sn]);
   }
   plt::save(out_file_png);
   plt::clf();

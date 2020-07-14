@@ -31,17 +31,16 @@ class Writer
 {
 protected:
   int batch_number_;
-  bool is_complex_;
 
 public:
   //! Write data to file
   // \param [in] d data to write
-  virtual void WriteData(const std::vector<float> d) = 0;
+  virtual void WriteData(const std::vector<std::vector<float>> &d) = 0;
 
   //! Create graphics
   // \param [in] x data to save to graphic
   // \param [in] out_file name of file for output data
-  void CreateGraph(const std::vector<float> &x, std::string out_file);
+  void CreateGraph(const std::vector<std::vector<float>> &x, std::string out_file);
 };
 
 //! \brief Stands for txt data storing
@@ -52,10 +51,8 @@ private:
   std::string file_name_;
 
 public:
-  // \param [in] file_name name of file, where data are going to be stored
-  // \param [in] is_complex flag, which signals that data to write is complex
-  WriterTxtData(const std::string &file_name, bool is_complex, float hz);
+  WriterTxtData(const std::string &file_name);
 
-  void WriteData(const std::vector<float> d) override;
+  void WriteData(const std::vector<std::vector<float>> &d) override;
 };
 #endif
