@@ -23,32 +23,11 @@ protected:
 class CpuFreqData : public DataSource
 {
 public:
-    CpuFreqData();
+    //! \param [in] file_name name of file, which corresponds to current sensor
+    CpuFreqData(std::string file_name);
 
     //! Get value of cpu frequency
     // \return cpu frequency
-    float GetValue() override;
-};
-
-//! \brief Fan Rpm
-class FanRpmData : public DataSource
-{
-public:
-    FanRpmData();
-
-    //! Get value of fan rpm
-    // \return rpm
-    float GetValue() override;
-};
-
-//! \brief Cpu Temp
-class CpuTempData : public DataSource
-{
-public:
-    CpuTempData();
-
-    //! Get value of cpu temperature
-    // \return cpu temperature
     float GetValue() override;
 };
 
