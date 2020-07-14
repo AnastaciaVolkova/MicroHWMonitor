@@ -59,6 +59,11 @@ float SavedData::GetValue()
     }
     else
     {
+      if (val == " ")
+      {
+        no_data_ = true;
+        return 0;
+      }
       iss_ = istringstream(val);
       getline(iss_, val, ' ');
     }
