@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
   unique_ptr<DataSource> ds;
   unique_ptr<Writer> writer;
   unique_ptr<Transformer> transformer;
-
+  unique_ptr<DataProcessor> data_proc;
   // Size of data chunk which is written to file
   constexpr int batch_num = 64;
 
@@ -123,12 +123,15 @@ int main(int argc, char *argv[])
   tp = 1000 * (1 / hz);
   ds = DataSourceGenerator::GetDataSource(in_d_file == "" ? source : in_d_file);
 
+  writer = make_unique<WriterTxtData>(out_file);
   if (in_d_file == "")
   {
     if (transform == "")
       transformer = make_unique<ByPassTransformer>();
     else
+
       transformer = make_unique<FFTTransformer>();
+    data_proc = make_unique<DataProcessor>(batch_num, transformer.get(), writer.get());
   }
   else
   {
@@ -136,10 +139,9 @@ int main(int argc, char *argv[])
       transformer = make_unique<ByPassTransformer>();
     else
       transformer = make_unique<IFFTTransformer>();
+    data_proc = make_unique<DataProcessor>(2 * batch_num, transformer.get(), writer.get());
+    tp /= 2;
   }
-  writer = make_unique<WriterTxtData>(out_file);
-
-  DataProcessor data_proc(batch_num, transformer.get(), writer.get());
 
   // Run thread to catch user input
   auto key = std::async(std::launch::async, []() {string key; std::cin >> key; return key; });
@@ -151,18 +153,20 @@ int main(int argc, char *argv[])
   while (true)
   {
     float val = ds->GetValue();
-    data_proc.Feed(val);
+    data_proc->Feed(val);
+    if (ds->NoData())
+      break;
 
-    if ((data_proc.NumSamples() % 10) == 0)
+    if ((data_proc->NumSamples() % 10) == 0)
     {
-      ShowSamples(data_proc.NumSamples(), true);
+      ShowSamples(data_proc->NumSamples(), true);
     }
     // Wait rest of time for user keystroke
     system_clock::time_point tw = starts + milliseconds(static_cast<int>(round(tp)));
     std::future_status status = key.wait_until(tw);
     if (status == std::future_status::ready)
     {
-      ShowSamples(data_proc.NumSamples(), false);
+      ShowSamples(data_proc->NumSamples(), false);
       break;
     }
     while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - starts).count() <= tp)
