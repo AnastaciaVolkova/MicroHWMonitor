@@ -1,16 +1,18 @@
 #include "data_source.hpp"
 #include <fstream>
 #include <string>
+#include <stdexcept>
 
 using std::ifstream;
+using std::istringstream;
 using std::make_unique;
 using std::stof;
 using std::string;
 using std::unique_ptr;
 
-DataSource::DataSource(string data_file) : data_file_(data_file){};
+DataSource::DataSource(string data_file, bool no_data) : data_file_(data_file), no_data_(no_data){};
 
-CpuFreqData::CpuFreqData() : DataSource("/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq"){};
+CpuFreqData::CpuFreqData() : DataSource("/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq", false){};
 
 float CpuFreqData::GetValue()
 {
@@ -20,7 +22,7 @@ float CpuFreqData::GetValue()
   return stof(freq);
 };
 
-FanRpmData::FanRpmData() : DataSource("/sys/class/hwmon/hwmon6/fan1_input"){};
+FanRpmData::FanRpmData() : DataSource("/sys/class/hwmon/hwmon6/fan1_input", false){};
 
 float FanRpmData::GetValue()
 {
@@ -30,7 +32,7 @@ float FanRpmData::GetValue()
   return stof(rpm);
 };
 
-CpuTempData::CpuTempData() : DataSource("/sys/class/hwmon/hwmon0/temp1_input"){};
+CpuTempData::CpuTempData() : DataSource("/sys/class/hwmon/hwmon0/temp1_input", false){};
 
 float CpuTempData::GetValue()
 {
@@ -39,19 +41,29 @@ float CpuTempData::GetValue()
   ifs >> rpm;
   return stof(rpm);
 };
-
-SavedData::SavedData(string file_name) : DataSource(file_name)
+#include <iostream>
+SavedData::SavedData(string file_name) : DataSource(file_name, false)
 {
   ifs_.open(file_name);
 };
 
 float SavedData::GetValue()
 {
-  string value;
-  if (!getline(ifs_, value, ' '))
-    if (!getline(ifs_, value, ' '))
+  string val;
+  if (!getline(iss_, val, ' '))
+  {
+    if (!getline(ifs_, val))
+    {
+      no_data_ = true;
       return 0;
-  return stof(value);
+    }
+    else
+    {
+      iss_ = istringstream(val);
+      getline(iss_, val, ' ');
+    }
+  }
+  return stof(val);
 }
 
 SavedData::~SavedData()

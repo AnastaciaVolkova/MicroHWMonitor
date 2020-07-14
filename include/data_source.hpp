@@ -4,15 +4,19 @@
 #include <string>
 #include <memory>
 #include <fstream>
+#include <sstream>
+
 class DataSource
 {
 public:
-    DataSource(std::string data_file);
+    DataSource(std::string data_file, bool no_data);
     virtual ~DataSource(){};
     virtual float GetValue() = 0;
+    bool NoData() { return no_data_; };
 
 protected:
     const std::string data_file_;
+    bool no_data_;
 };
 
 //! \brief Cpu frequency
@@ -53,6 +57,7 @@ class SavedData : public DataSource
 {
 private:
     std::ifstream ifs_;
+    std::istringstream iss_;
 
 public:
     SavedData(std::string file_name);
