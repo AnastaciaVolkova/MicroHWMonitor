@@ -82,7 +82,7 @@ void WriterTxtData::WriteData(const vector<vector<float>> &d)
   for (int i = 0; i < d[0].size(); i++)
   {
     for (int j = 0; j < d.size(); j++)
-      ofs_ << d[j][i] << " ";
+      ofs_ << std::fixed << d[j][i] << " ";
   }
   ofs_ << std::endl;
   CreateGraph(d, file_name_);
