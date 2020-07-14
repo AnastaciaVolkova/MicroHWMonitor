@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
   string transform = "";
   reader->GetParameters(source, hz, transform);
   float tp = 1000 * (1 / hz);
-  unique_ptr<DataSource> ds = DataSourceGenerator::GetDataSource(source);
+  unique_ptr<DataSource> ds = DataSourceGenerator::GetDataSource(in_d_file == "" ? source : in_d_file);
 
   writer = new WriterTxtData(out_file, transform != "", hz);
 
@@ -131,8 +131,8 @@ int main(int argc, char *argv[])
   while (true)
   {
     sample_number++;
-    float freq = ds->GetValue();
-    x.push_back(freq);
+    float val = ds->GetValue();
+    x.push_back(val);
     if (x.size() == batch_num)
     {
       if (transform == "fft")

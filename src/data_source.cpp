@@ -40,6 +40,25 @@ float CpuTempData::GetValue()
   return stof(rpm);
 };
 
+SavedData::SavedData(string file_name) : DataSource(file_name)
+{
+  ifs_.open(file_name);
+};
+
+float SavedData::GetValue()
+{
+  string value;
+  if (!getline(ifs_, value, ' '))
+    if (!getline(ifs_, value, ' '))
+      return 0;
+  return stof(value);
+}
+
+SavedData::~SavedData()
+{
+  ifs_.close();
+}
+
 unique_ptr<DataSource> DataSourceGenerator::GetDataSource(string source_name)
 {
   while (source_name[0] == ' ')
@@ -52,6 +71,8 @@ unique_ptr<DataSource> DataSourceGenerator::GetDataSource(string source_name)
     return make_unique<FanRpmData>();
   else if (source_name == "cpu_temp")
     return make_unique<CpuTempData>();
+  else if (source_name != "")
+    return make_unique<SavedData>(source_name);
   else
     return nullptr;
 };

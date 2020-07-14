@@ -3,11 +3,12 @@
 
 #include <string>
 #include <memory>
-
+#include <fstream>
 class DataSource
 {
 public:
     DataSource(std::string data_file);
+    virtual ~DataSource(){};
     virtual float GetValue() = 0;
 
 protected:
@@ -44,6 +45,21 @@ public:
 
     //! Get value of cpu temperature
     // \return cpu temperature
+    float GetValue() override;
+};
+
+//! \brief Saved data
+class SavedData : public DataSource
+{
+private:
+    std::ifstream ifs_;
+
+public:
+    SavedData(std::string file_name);
+    ~SavedData() override;
+
+    //! Get value of saved data
+    // \return sample of saved data
     float GetValue() override;
 };
 
