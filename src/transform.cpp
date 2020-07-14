@@ -27,6 +27,27 @@ void FFTTransformer::operator()(vector<float> &in_data, vector<float> &out_data)
   fftw_free(out);
 };
 
+void IFFTTransformer::operator()(vector<float> &in_data, vector<float> &out_data)
+{
+  fftw_complex *in, *out;
+  in = (fftw_complex *)fftw_malloc(sizeof(fftw_complex) * in_data.size());
+  out = (fftw_complex *)fftw_malloc(sizeof(fftw_complex) * in_data.size());
+  out_data.resize(2 * in_data.size());
+  fftw_plan p = fftw_plan_dft_1d(64, in, out, FFTW_BACKWARD, FFTW_ESTIMATE);
+  for (int i = 0; i < 64; i++)
+  {
+    in[i][0] = in_data[2 * i];
+    in[i][1] = in_data[2 * i + 1];
+  }
+  fftw_execute(p);
+  for (int i = 0; i < out_data.size(); i++)
+    out_data[i] = out[i][0];
+
+  fftw_destroy_plan(p);
+  fftw_free(in);
+  fftw_free(out);
+};
+
 void ByPassTransformer::operator()(vector<float> &in_data, vector<float> &out_data)
 {
   out_data = std::move(in_data);

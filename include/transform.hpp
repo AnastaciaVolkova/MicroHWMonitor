@@ -24,6 +24,11 @@ class FFTTransformer : public Transformer
   void operator()(std::vector<float> &in_data, std::vector<float> &out_data) override;
 };
 
+class IFFTTransformer : public Transformer
+{
+  void operator()(std::vector<float> &in_data, std::vector<float> &out_data) override;
+};
+
 //!\brief Stands for data processing
 class DataProcessor
 {
