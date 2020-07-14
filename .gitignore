@@ -3,4 +3,6 @@ build/
 .git/
 message.txt
 *.xml
+*.png
+*out*.txt
 
