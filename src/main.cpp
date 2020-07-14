@@ -42,46 +42,38 @@ void ShowSamples(int sample_number, bool to_r)
     std::cout << std::endl;
 };
 
-bool ParseCommandLine(int argc, char *argv[], bool &to_replay, string &in_file, string &out_file)
+bool ParseCommandLine(int argc, char *argv[], string &in_d_file, string &in_file, string &out_file)
 {
   int i = 1;
-  to_replay = false;
   in_file = "";
   out_file = "";
-  string command_line = argv[0] + string(" -if <parameter_file> -of <output_data_file> [-r]");
-  while (i < argc)
+  in_d_file = "";
+  string command_line = argv[0] + string(" -if <input_parameter_file> -of <output_data_file> [-id <input_data_file>]");
+  while (i < argc - 1)
   {
     string arg_it = argv[i++];
-    if (arg_it == "-r")
+    if (arg_it == "-if")
     {
-      to_replay = true;
+      in_file = argv[i++];
     }
-    else if (i < argc)
+    else if (arg_it == "-of")
     {
-      if (arg_it == "-if")
-      {
-        in_file = argv[i++];
-      }
-      else if (arg_it == "-of")
-      {
-        out_file = argv[i++];
-      }
-      else if (arg_it == "-h")
-      {
-        std::cout << command_line << std::endl;
-        return false;
-      }
-      else
-      {
-        std::cerr << "Wrong command line" << std::endl;
-        std::cerr << command_line << std::endl;
-        return false;
-      }
+      out_file = argv[i++];
+    }
+    else if (arg_it == "-id")
+    {
+      in_d_file = argv[i++];
+    }
+    else if (arg_it == "-h")
+    {
+      std::cout << command_line << std::endl;
+      return false;
     }
     else
     {
       std::cerr << "Wrong command line" << std::endl;
       std::cerr << command_line << std::endl;
+      return false;
     }
   }
   if ((out_file == "") || (in_file == ""))
@@ -101,9 +93,9 @@ int main(int argc, char *argv[])
   // Size of data chunk which is written to file
   constexpr int batch_num = 64;
 
-  string in_file, out_file;
+  string in_file, out_file, in_d_file;
   bool to_replay;
-  if (!ParseCommandLine(argc, argv, to_replay, in_file, out_file))
+  if (!ParseCommandLine(argc, argv, in_d_file, in_file, out_file))
     return -1;
 
   try
