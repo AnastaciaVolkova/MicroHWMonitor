@@ -1,6 +1,10 @@
 #include "sensor_poller.hpp"
+#include <stdexcept>
 
+using std::invalid_argument;
+using std::make_unique;
 using std::string;
+using std::unique_ptr;
 
 bool ParseCommandLine(int argc, char *argv[], string &in_d_file, string &in_file, string &out_file)
 {
@@ -47,7 +51,6 @@ bool ParseCommandLine(int argc, char *argv[], string &in_d_file, string &in_file
 
 int main(int argc, char *argv[])
 {
-
   // Parametes to get from command line
   string in_file, out_file, in_d_file;
 
@@ -56,8 +59,17 @@ int main(int argc, char *argv[])
   if (!ParseCommandLine(argc, argv, in_d_file, in_file, out_file))
     return -1;
 
-  Poller poller(in_file, out_file, in_d_file);
+  unique_ptr<Poller> poller;
+  try
+  {
+    poller = make_unique<Poller>(in_file, out_file, in_d_file);
+  }
+  catch (invalid_argument exc)
+  {
+    std::cerr << exc.what() << std::endl;
+    return -1;
+  }
 
-  poller.PollSensors();
+  poller->PollSensors();
   return 0;
 }
