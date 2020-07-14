@@ -11,22 +11,22 @@ public:
   \param [in] in_data input data
   \param [out] out_data transformation of input data
   */
-  virtual void operator()(std::vector<float> &in_data, std::vector<float> &out_data) = 0;
+  virtual void operator()(std::vector<float> &in_data, std::vector<std::vector<float>> &out_data) = 0;
 };
 
 class ByPassTransformer : public Transformer
 {
-  void operator()(std::vector<float> &in_data, std::vector<float> &out_data) override;
+  void operator()(std::vector<float> &in_data, std::vector<std::vector<float>> &out_data) override;
 };
 
 class FFTTransformer : public Transformer
 {
-  void operator()(std::vector<float> &in_data, std::vector<float> &out_data) override;
+  void operator()(std::vector<float> &in_data, std::vector<std::vector<float>> &out_data) override;
 };
 
 class IFFTTransformer : public Transformer
 {
-  void operator()(std::vector<float> &in_data, std::vector<float> &out_data) override;
+  void operator()(std::vector<float> &in_data, std::vector<std::vector<float>> &out_data) override;
 };
 
 //!\brief Stands for data processing
