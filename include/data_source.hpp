@@ -5,6 +5,7 @@
 #include <memory>
 #include <fstream>
 #include <sstream>
+#include <map>
 
 class DataSource
 {
@@ -56,5 +57,9 @@ public:
     \return pointer to generated data source accourding to source_name or nullptr if source_name is invalid
     */
     static std::unique_ptr<DataSource> GetDataSource(std::string source_name);
+
+private:
+    // sensor name <-> sensor file
+    static std::map<std::string, std::string> sensor_files_;
 };
 #endif

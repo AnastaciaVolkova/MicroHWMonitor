@@ -6,6 +6,7 @@
 using std::ifstream;
 using std::istringstream;
 using std::make_unique;
+using std::map;
 using std::stof;
 using std::string;
 using std::unique_ptr;
@@ -56,20 +57,24 @@ SavedData::~SavedData()
   ifs_.close();
 }
 
+map<string, string> DataSourceGenerator::sensor_files_{
+    {"cpu", "/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq"},
+    {"fan", "/sys/class/hwmon/hwmon6/fan1_input"},
+    {"cpu_temp", "/sys/class/hwmon/hwmon8/temp1_input"},
+};
+
 unique_ptr<DataSource> DataSourceGenerator::GetDataSource(string source_name)
 {
   while (source_name[0] == ' ')
     source_name.erase(' ');
   while (source_name[source_name.size() - 1] == ' ')
     source_name.erase(source_name.size() - 1);
-  if (source_name == "cpu")
-    return make_unique<CpuFreqData>("/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq");
-  else if (source_name == "fan")
-    return make_unique<CpuFreqData>("/sys/class/hwmon/hwmon6/fan1_input");
-  else if (source_name == "cpu_temp")
-    return make_unique<CpuFreqData>("/sys/class/hwmon/hwmon8/temp1_input");
-  else if (source_name != "")
+
+  if (source_name == "")
     return make_unique<SavedData>(source_name);
-  else
+
+  if (sensor_files_.find(source_name) == sensor_files_.end())
     return nullptr;
+
+  return make_unique<CpuFreqData>(sensor_files_[source_name]);
 };
