@@ -3,7 +3,7 @@
 
 using std::vector;
 
-void Transformer::fft(const std::vector<float> &in_data, std::vector<float> &out_data)
+void FFTTransformer::operator()(vector<float> &in_data, vector<float> &out_data)
 {
   fftw_complex *in, *out;
   in = (fftw_complex *)fftw_malloc(sizeof(fftw_complex) * in_data.size());
@@ -25,4 +25,27 @@ void Transformer::fft(const std::vector<float> &in_data, std::vector<float> &out
   fftw_destroy_plan(p);
   fftw_free(in);
   fftw_free(out);
+};
+
+void ByPassTransformer::operator()(vector<float> &in_data, vector<float> &out_data)
+{
+  out_data = std::move(in_data);
+};
+
+DataProcessor::DataProcessor(int batch_size, Transformer *transformer, Writer *writer) : batch_size_(batch_size),
+                                                                                         writer_(writer),
+                                                                                         transformer_(transformer),
+                                                                                         num_samples_processed_(0){};
+
+void DataProcessor::Feed(float sample)
+{
+  data_.push_back(sample);
+  num_samples_processed_++;
+  if (data_.size() == batch_size_)
+  {
+    vector<float> out_data;
+    (*transformer_)(data_, out_data);
+    writer_->WriteData(out_data);
+    data_.clear();
+  }
 };

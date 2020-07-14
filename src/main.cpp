@@ -13,6 +13,7 @@
 #include <future>
 
 using std::invalid_argument;
+using std::make_unique;
 using std::ofstream;
 using std::string;
 using std::to_string;
@@ -87,8 +88,7 @@ bool ParseCommandLine(int argc, char *argv[], string &in_d_file, string &in_file
 
 int main(int argc, char *argv[])
 {
-  Reader *reader;
-  Writer *writer;
+  unique_ptr<Reader> reader;
 
   // Size of data chunk which is written to file
   constexpr int batch_num = 64;
@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
 
   try
   {
-    reader = new ReaderXML(in_file);
+    reader = make_unique<ReaderXML>(in_file);
   }
   catch (invalid_argument exception)
   {
@@ -115,11 +115,10 @@ int main(int argc, char *argv[])
   float tp = 1000 * (1 / hz);
   unique_ptr<DataSource> ds = DataSourceGenerator::GetDataSource(in_d_file == "" ? source : in_d_file);
 
-  writer = new WriterTxtData(out_file, transform != "", hz);
+  unique_ptr<Writer> writer = make_unique<WriterTxtData>(out_file, transform != "", hz);
+  unique_ptr<Transformer> transformer = make_unique<FFTTransformer>();
 
-  vector<float> x;
-
-  int sample_number = 0;
+  DataProcessor data_proc(batch_num, transformer.get(), writer.get());
 
   // Run thread to catch user input
   auto key = std::async(std::launch::async, []() {string key; std::cin >> key; return key; });
@@ -130,33 +129,19 @@ int main(int argc, char *argv[])
   // Main cycle
   while (true)
   {
-    sample_number++;
     float val = ds->GetValue();
-    x.push_back(val);
-    if (x.size() == batch_num)
+    data_proc.Feed(val);
+
+    if ((data_proc.NumSamples() % 10) == 0)
     {
-      if (transform == "fft")
-      {
-        vector<float> y;
-        Transformer::fft(x, y);
-        writer->WriteData(y);
-      }
-      else
-      {
-        writer->WriteData(x);
-      }
-      x.clear();
-    }
-    if ((sample_number % 10) == 0)
-    {
-      ShowSamples(sample_number, true);
+      ShowSamples(data_proc.NumSamples(), true);
     }
     // Wait rest of time for user keystroke
     system_clock::time_point tw = starts + milliseconds(static_cast<int>(round(tp)));
     std::future_status status = key.wait_until(tw);
     if (status == std::future_status::ready)
     {
-      ShowSamples(sample_number, false);
+      ShowSamples(data_proc.NumSamples(), false);
       break;
     }
     while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - starts).count() <= tp)
