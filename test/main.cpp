@@ -4,6 +4,7 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include <chrono>
 
 using std::cerr;
 using std::cout;
@@ -77,8 +78,13 @@ bool Test1()
       return -1;
     }
     // Run function to test
+    auto start = std::chrono::system_clock::now();
     poller->PollSensors();
     std::cout << std::endl;
+    auto end = std::chrono::system_clock::now();
+    auto dur = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+    std::cout << "Duration" << std::endl;
+    std::cout << dur << std::endl;
   }
   ifstream ifs_dut(out_file);
   ifstream ifs_ref(out_d_file);
