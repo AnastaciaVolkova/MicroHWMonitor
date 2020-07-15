@@ -15,6 +15,13 @@ using std::to_string;
 using std::tuple;
 using std::vector;
 
+#ifdef MULTI_TH
+using std::move;
+using std::mutex;
+using std::queue;
+using std::unique_lock;
+#endif
+
 ReaderXML::ReaderXML(const string &in_file)
 {
   tinyxml2::XMLError error = doc_.LoadFile(in_file.c_str());
@@ -88,6 +95,31 @@ void WriterTxtData::WriteData(const vector<vector<float>> &d)
   CreateGraph(d, file_name_);
   batch_number_++;
 }
+
+#ifdef MULTI_TH
+void WriterTxtData::WriteData()
+{
+  while (to_continue_)
+  {
+    queue<vector<vector<float>>> working_queue;
+    {
+      unique_lock<mutex> lock(*pool_mutex_);
+      pool_cond_->wait(lock, [this]() { return !data_queue_->empty(); });
+      while (!data_queue_->empty())
+      {
+        working_queue.push(move(data_queue_->front()));
+        data_queue_->pop();
+      }
+    }
+    while (!working_queue.empty())
+    {
+      vector<vector<float>> q = move(working_queue.front());
+      WriteData(q);
+      working_queue.pop();
+    }
+  }
+}
+#endif
 
 void Writer::CreateGraph(const vector<vector<float>> &x, string out_file)
 {

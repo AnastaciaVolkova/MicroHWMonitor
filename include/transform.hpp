@@ -2,7 +2,11 @@
 #define TRANSFORM_HPP_
 #include <vector>
 #include "read_write.hpp"
-
+#ifdef MULTI_TH
+#include <mutex>
+#include <condition_variable>
+#include <queue>
+#endif
 class Transformer
 {
 public:
@@ -36,6 +40,11 @@ public:
   DataProcessor(int batch_size, Transformer *transformer, Writer *writer);
   void Feed(float sample);
   int NumSamples() { return num_samples_processed_; };
+#ifdef MULTI_TH
+  std::mutex *pool_mutex_;
+  std::condition_variable *pool_cond_;
+  std::queue<std::vector<std::vector<float>>> *data_queue_;
+#endif
 
 private:
   std::vector<float> data_;

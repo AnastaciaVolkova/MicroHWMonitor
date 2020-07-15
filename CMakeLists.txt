@@ -18,6 +18,11 @@ set(MAIN_FILE "./src/main.cpp")
 project(micro_hardware_monitor)
 endif()
 
+OPTION(MTH "Switch on multi threading" OFF)
+if (MTH)
+add_definitions(-DMULTI_TH)
+endif()
+
 find_package(Threads REQUIRED)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")

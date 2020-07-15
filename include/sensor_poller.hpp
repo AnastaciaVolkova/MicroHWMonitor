@@ -17,7 +17,12 @@
 #include <memory>
 #include <future>
 #include <iostream>
-
+#ifdef MULTI_TH
+#include <mutex>
+#include <condition_variable>
+#include <queue>
+#include <thread>
+#endif
 //!\brief Sensor polling
 class Poller
 {
@@ -38,6 +43,12 @@ public:
     data_source_ = DataSourceGenerator::GetDataSource(input_data_file_name == "" ? source : input_data_file_name);
 
     writer_ = std::make_unique<WriterTxtData>(output_file_name);
+#ifdef MULTI_TH
+    writer_->pool_mutex_ = &pool_mutex_;
+    writer_->pool_cond_ = &pool_cond_;
+    writer_->data_queue_ = &data_queue_;
+    writer_->to_continue_ = true;
+#endif
     if (input_data_file_name == "")
     {
       if (transform == "")
@@ -56,7 +67,13 @@ public:
       data_proc_ = std::make_unique<DataProcessor>(2 * batch_num_, transformer.get(), writer_.get());
       period_ /= 2;
     }
+#ifdef MULTI_TH
+    data_proc_->pool_mutex_ = &pool_mutex_;
+    data_proc_->pool_cond_ = &pool_cond_;
+    data_proc_->data_queue_ = &data_queue_;
+#endif
   };
+
   void PollSensors()
   {
 #ifndef UT
@@ -64,6 +81,10 @@ public:
     auto key = std::async(std::launch::async, []() {std::string key; std::cin >> key; return key; });
 #endif
 
+#ifdef MULTI_TH
+    void (Writer::*th_func)() = &Writer::WriteData;
+    std::thread write_async(th_func, static_cast<WriterTxtData *>(writer_.get()));
+#endif
     // Time, when iteration starts
     auto starts = std::chrono::system_clock::now();
 
@@ -93,6 +114,10 @@ public:
         ;
       starts = std::chrono::system_clock::now();
     }
+#ifdef MULTI_TH
+    writer_->to_continue_ = false;
+    write_async.join();
+#endif
   };
 
 private:
@@ -127,6 +152,11 @@ private:
   std::unique_ptr<Transformer> transformer;
   std::unique_ptr<DataProcessor> data_proc_;
   float period_;
+#ifdef MULTI_TH
+  std::mutex pool_mutex_;
+  std::condition_variable pool_cond_;
+  std::queue<std::vector<std::vector<float>>> data_queue_;
+#endif
 };
 
 #endif

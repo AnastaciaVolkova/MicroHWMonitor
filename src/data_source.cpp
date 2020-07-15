@@ -70,11 +70,8 @@ unique_ptr<DataSource> DataSourceGenerator::GetDataSource(string source_name)
   while (source_name[source_name.size() - 1] == ' ')
     source_name.erase(source_name.size() - 1);
 
-  if (source_name == "")
-    return make_unique<SavedData>(source_name);
-
   if (sensor_files_.find(source_name) == sensor_files_.end())
-    return nullptr;
+    return make_unique<SavedData>(source_name);
 
   return make_unique<CpuFreqData>(sensor_files_[source_name]);
 };

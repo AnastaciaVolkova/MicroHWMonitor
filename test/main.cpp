@@ -78,6 +78,7 @@ bool Test1()
     }
     // Run function to test
     poller->PollSensors();
+    std::cout << std::endl;
   }
   ifstream ifs_dut(out_file);
   ifstream ifs_ref(out_d_file);

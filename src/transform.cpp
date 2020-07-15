@@ -3,6 +3,10 @@
 
 using std::vector;
 
+#ifdef MULTI_TH
+using std::mutex;
+using std::unique_lock;
+#endif
 void FFTTransformer::operator()(vector<float> &in_data, vector<vector<float>> &out_data)
 {
   fftw_complex *in, *out;
@@ -73,7 +77,15 @@ void DataProcessor::Feed(float sample)
   {
     vector<vector<float>> out_data;
     (*transformer_)(data_, out_data);
+#ifdef MULTI_TH
+    {
+      unique_lock<mutex> lock(*pool_mutex_);
+      data_queue_->push(out_data);
+      pool_cond_->notify_all();
+    }
+#else
     writer_->WriteData(out_data);
+#endif
     data_.clear();
   }
 };
